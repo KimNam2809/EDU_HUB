@@ -180,7 +180,39 @@ RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxx
 
 ---
 
-## 8. HƯỚNG DẪN DÀNH CHO AI TIẾP QUẢN KHI BẮT ĐẦU CÔNG VIỆC MỚI
+## 8. KIẾN TRÚC TRỢ LÝ AI AGENTS SƯ PHẠM (SCIBUDDY AI AGENT)
+
+### 8.1. Quyết định thiết kế: Loại bỏ hoàn toàn modal "Thêm API Key"
+- **Lý do sư phạm & bảo mật:** Học sinh và giáo viên phổ thông không cần phải có kiến thức về API Key, không phải tự đăng ký hay copy-paste key. Việc nhập API key trên giao diện client dễ gây lộ key cá nhân và tạo rào cản kỹ thuật lớn.
+- **Giải pháp:** Toàn bộ API Key (`OPENROUTER_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`) được lưu trữ an toàn tuyệt đối ở phía Serverless Backend (`/api/chat.js` và biến môi trường Vercel). Giao diện hiển thị trực tiếp trạng thái `🟢 AI Agent Sẵn Sàng (GDPT 2018)`.
+
+### 8.2. Cơ chế AI Agent (Hành động điều hướng hệ thống):
+- **Phát hiện ý định & Thẻ hành động:** Khi người dùng đặt câu hỏi có nhu cầu mở công cụ EduHub (ví dụ: *"Mở bảng tuần hoàn"*, *"Cân bằng phương trình Fe + O2"*, *"Mở vòng quay may mắn"*...), AI Agent tự động đính kèm thẻ lệnh ở cuối câu trả lời dạng:
+  - `[ACTION:NAVIGATE:games:wheel]` -> Mở Vòng quay may mắn
+  - `[ACTION:NAVIGATE:games:seating]` -> Mở Sơ đồ lớp laser
+  - `[ACTION:NAVIGATE:games:battle]` -> Mở Đấu trường tri thức
+  - `[ACTION:NAVIGATE:lab:periodic]` -> Mở Bảng tuần hoàn nguyên tố Bohr 3D
+  - `[ACTION:NAVIGATE:lab:simulations]` -> Mở Phòng thí nghiệm ảo PhET
+  - `[ACTION:NAVIGATE:lab:toolkit]` -> Mở Bục giảng số & Cân bằng PTHH
+  - `[ACTION:NAVIGATE:exam]` -> Mở Ngân hàng đề thi
+  - `[ACTION:NAVIGATE:classes]` -> Mở Quản lý lớp học
+- **Render Action Card:** Frontend phân tích thẻ này qua hàm `parseAction(text)`, bóc tách chuỗi lệnh và hiển thị thành một **Thẻ hành động trực quan (Agent Action Card)** với nút bấm **"Mở Ngay →"**. Khi bấm nút, callback `onNavigateTab(tab, subTab)` được kích hoạt để chuyển ngay đến công cụ tương ứng.
+
+### 8.3. Chuỗi dự phòng AI Model (Resilient AI Provider Chain):
+Tầng Serverless `/api/chat.js` xử lý hội thoại đa lượt (`chatHistory`) qua cơ chế ngắt mạch dự phòng tự động:
+1. **OpenRouter High-Performance Models:** Ưu tiên các model chất lượng cao (Free tier: `google/gemma-4-31b-it:free`, `google/gemma-4-26b-a4b-it:free`, `qwen/qwen3.8-27b:free`; và Paid tier: `meta-llama/llama-3.3-70b-instruct`, `mistralai/mistral-small-24b-instruct-2501`).
+2. **Google Gemini Flash API:** Dự phòng khi cấu hình `GEMINI_API_KEY`.
+3. **Groq Llama 3.3 70B:** Dự phòng khi `GROQ_API_KEY` còn quota.
+4. **Offline Socrates Heuristic Engine:** Đáp ứng tức thì 0ms cho các câu hỏi phổ biến, giữ hệ thống hoạt động 100% ngay cả khi mất mạng internet hoặc sự cố phía nhà cung cấp API.
+
+### 8.4. Phương pháp sư phạm Socrates GDPT 2018:
+- Không giải bài hộ, không đưa đáp án trần trụi.
+- Đặt câu hỏi dẫn dắt, gợi mở tư duy, khơi gợi hiện tượng thực tiễn đời sống.
+- Tuân thủ nghiêm ngặt danh pháp quốc tế IUPAC mới: *Oxygen, Hydrogen, Carbon, Nitrogen, Carbon monoxide, Carbon dioxide, Hydrochloric acid, Calcium carbonate...*
+
+---
+
+## 9. HƯỚNG DẪN DÀNH CHO AI TIẾP QUẢN KHI BẮT ĐẦU CÔNG VIỆC MỚI
 
 Khi bạn (AI kế nhiệm) nhận một yêu cầu tiếp theo từ người dùng:
 1. **Đọc kỹ file này (`Agents.md`)** cùng với `src/App.jsx` và `src/index.css` để nắm bắt phong cách code.

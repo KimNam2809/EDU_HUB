@@ -25,8 +25,13 @@ dist-ssr
 *.sln
 *.sw?
 
+# Docs
 KE_HOACH_THIET_KE.md
+KE_HOACH_TEST_EDUHUB.md
 plan_deploy.md
+deploy_plan.md
 known.md
 fix_*.md
-deploy_plan.md
+security_plan.md
+test_plan.md
+

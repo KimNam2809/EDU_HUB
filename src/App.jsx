@@ -292,7 +292,14 @@ export default function App() {
               <QABoard currentClass={currentClass} />
             )}
             {activeQASubTab === 'scibuddy' && (
-              <SciBuddyAI />
+              <SciBuddyAI 
+                onNavigateTab={(tab, subTab) => {
+                  setActiveTab(tab);
+                  if (tab === 'games' && subTab) setActiveGameSubTab(subTab);
+                  if (tab === 'lab' && subTab) setActiveLabSubTab(subTab);
+                  if (tab === 'qa' && subTab) setActiveQASubTab(subTab);
+                }}
+              />
             )}
           </div>
         )}
