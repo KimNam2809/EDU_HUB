@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { PERIODIC_ELEMENTS, SOLUBILITY_DATA, ELEMENT_INTERACTIONS } from '../data/mockData';
 import { playPop, playVictoryFanfare, playTimerBell } from '../utils/soundEffects';
+import ChemicalEquation from './ChemicalEquation';
 
 const CATEGORY_MAP = {
   'all': { label: 'Tất Cả', color: '#06b6d4' },
@@ -643,18 +644,19 @@ function ElementInteractionSandbox({
 
                         {/* Chemical Formula */}
                         <div style={{ 
-                          fontFamily: 'var(--font-mono)', 
-                          fontSize: '1.15rem', 
+                          fontSize: '1.25rem', 
                           fontWeight: 700, 
                           color: 'var(--text-main)', 
                           background: 'var(--bg-surface-hover)', 
-                          padding: '0.65rem 1rem', 
+                          padding: '0.75rem 1rem', 
                           borderRadius: 'var(--radius-sm)',
                           border: '1.5px solid var(--border-subtle)',
                           borderLeft: '4px solid #f59e0b',
-                          marginBottom: '0.75rem'
+                          marginBottom: '0.75rem',
+                          overflowX: 'auto',
+                          overflowY: 'hidden'
                         }}>
-                          {eq.formula}
+                          <ChemicalEquation formula={eq.formula} />
                         </div>
 
                         {/* Condition */}

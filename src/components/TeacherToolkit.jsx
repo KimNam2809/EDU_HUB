@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { CHEMICAL_REACTIONS } from '../data/mockData';
 import { playPop, playTimerBell, playBuzzer, playFocusBeat, playVictoryFanfare } from '../utils/soundEffects';
+import ChemicalEquation from './ChemicalEquation';
 
 // --- VISUAL REACTION SIMULATOR COMPONENT ---
 function ReactionPhenomenonVisualizer({ reaction }) {
@@ -1213,17 +1214,18 @@ export default function TeacherToolkit() {
                 </div>
 
                 <div style={{ 
-                  fontSize: '1.6rem', 
+                  fontSize: '1.45rem', 
                   fontWeight: 800, 
                   color: 'var(--text-main)', 
-                  fontFamily: 'var(--font-mono)', 
                   margin: '0.5rem 0',
                   padding: '0.75rem 1rem',
                   background: 'var(--bg-surface-hover)',
                   borderRadius: 'var(--radius-sm)',
-                  border: '1.5px solid var(--border-subtle)'
+                  border: '1.5px solid var(--border-subtle)',
+                  overflowX: 'auto',
+                  overflowY: 'hidden'
                 }}>
-                  {balancedResult.balanced}
+                  <ChemicalEquation formula={balancedResult.balanced} />
                 </div>
 
                 <div style={{ fontSize: '0.92rem', color: '#0284c7', lineHeight: '1.5', marginTop: '0.75rem' }}>
