@@ -68,7 +68,6 @@ export default function Navbar({
         </div>
         <div>
           <div className="brand-title">EduHub</div>
-          <div className="brand-sub">Nền Tảng Giáo Dục Số & Trợ Giảng KHTN</div>
         </div>
       </div>
 
