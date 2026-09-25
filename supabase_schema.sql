@@ -46,3 +46,24 @@ CREATE POLICY "Allow public read access to qa_questions"
 
 CREATE POLICY "Allow public insert/update to qa_questions" 
   ON public.qa_questions FOR ALL USING (true) WITH CHECK (true);
+
+-- 5. Create table for Security Audit & Attack Detection Logs
+CREATE TABLE IF NOT EXISTS public.security_incident_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  ip_address TEXT,
+  threat_type TEXT NOT NULL,
+  threat_level TEXT NOT NULL DEFAULT 'HIGH',
+  endpoint TEXT NOT NULL,
+  payload TEXT,
+  user_agent TEXT,
+  action_taken TEXT DEFAULT 'BLOCKED_403',
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.security_incident_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow anon insert to security_incident_logs"
+  ON public.security_incident_logs FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Allow public read access to security_incident_logs"
+  ON public.security_incident_logs FOR SELECT USING (true);

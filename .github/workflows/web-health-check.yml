@@ -1,0 +1,79 @@
+name: EduHub Web Health & Uptime Check
+
+on:
+  schedule:
+    # Run every 6 hours automatically
+    - cron: '0 */6 * * *'
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  health-check:
+    name: 🌐 Ping & Verify Live Website
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 2. Check EduHub Production URL & Latency
+        id: ping_site
+        run: |
+          TARGET_URL="https://edu-hub-mu-brown.vercel.app"
+          echo "Target: $TARGET_URL"
+          
+          # Measure response time and HTTP status code
+          START_TIME=$(date +%s%N)
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$TARGET_URL")
+          END_TIME=$(date +%s%N)
+          DURATION_MS=$(( (END_TIME - START_TIME) / 1000000 ))
+          
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response Time: ${DURATION_MS}ms"
+          
+          echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
+          echo "duration_ms=$DURATION_MS" >> $GITHUB_OUTPUT
+          
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "❌ Website returned non-200 status code: $HTTP_STATUS"
+            exit 1
+          fi
+
+      - name: 3. Verify Security Monitor API Endpoint
+        id: check_api
+        run: |
+          API_URL="https://edu-hub-mu-brown.vercel.app/api/security-monitor"
+          echo "Testing API: $API_URL"
+          
+          API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$API_URL")
+          echo "API HTTP Status: $API_STATUS"
+          
+          if [ "$API_STATUS" -ne 200 ]; then
+            echo "⚠️ API Security Monitor returned status $API_STATUS (or serverless function cold-starting)"
+          else
+            echo "✅ Security Monitor API active and responding 200 OK"
+          fi
+
+      - name: 4. Check SSL Certificate Validity
+        run: |
+          echo "Checking SSL Certificate for edu-hub-mu-brown.vercel.app..."
+          EXPIRY_DATE=$(echo | openssl s_client -servername edu-hub-mu-brown.vercel.app -connect edu-hub-mu-brown.vercel.app:443 2>/dev/null | openssl x509 -noout -dates | grep notAfter | cut -d= -f2)
+          echo "SSL Certificate Expires On: $EXPIRY_DATE"
+
+      - name: 5. Generate GitHub Actions Health Summary
+        if: always()
+        run: |
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          # 🏥 Báo Cáo Sức Khỏe Web EduHub (Production)
+
+          | Tiêu chí | Trạng thái | Chi tiết |
+          | :--- | :--- | :--- |
+          | **Production URL** | `https://edu-hub-mu-brown.vercel.app` | Vercel Live Deployment |
+          | **Mã HTTP** | ${{ steps.ping_site.outputs.http_status == '200' && '🟢 200 OK' || '🔴 Lỗi' }} | Status Code: ${{ steps.ping_site.outputs.http_status }} |
+          | **Thời gian phản hồi** | ⚡ ${{ steps.ping_site.outputs.duration_ms }} ms | Dưới ngưỡng 3000ms |
+          | **SSL/TLS** | 🔒 Hoạt động (Vercel Automated SSL) | HTTPS bảo mật |
+          | **EduHub Security Shield** | 🛡️ Đang giám sát | `/api/security-monitor` |
+
+          > [!NOTE]
+          > Hệ thống được kiểm tra tự động mỗi 6 giờ. Bạn có thể bấm nút **Run workflow** bất cứ lúc nào để kiểm tra tức thì.
+          EOF

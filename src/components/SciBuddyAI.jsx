@@ -192,7 +192,7 @@ export default function SciBuddyAI() {
           TAB 1: CHAT VỚI SCIBUDDY AI SOCRATES
          ========================================================= */}
       {activeTab === 'chat' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 320px) 1fr', gap: '1.5rem', alignItems: 'start' }}>
+        <div className="scibuddy-main-grid">
           {/* Left: Guided Science Phenomenon Scenarios */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>

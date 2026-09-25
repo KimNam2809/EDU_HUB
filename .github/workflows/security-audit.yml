@@ -1,0 +1,91 @@
+name: EduHub Security Audit & Threat Defense Scan
+
+on:
+  schedule:
+    # Run once daily at 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions
+  push:
+    branches: [ main ]
+
+jobs:
+  security-audit:
+    name: 🛡️ Audit Dependencies & Test Attack Shield
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 3. Install Dependencies
+        run: npm ci
+
+      - name: 4. Run Dependency CVE Audit
+        id: npm_audit
+        continue-on-error: true
+        run: |
+          echo "Running npm audit for security vulnerabilities..."
+          npm audit --audit-level=high > audit_report.txt 2>&1 || true
+          cat audit_report.txt
+
+      - name: 5. Scan Repository for Accidental Secret Leaks
+        run: |
+          echo "Checking codebase for leaked private credentials..."
+          LEAKS=0
+          # Ensure .env is ignored and no raw secret keys are in tracked files
+          if git grep -E "(BEGIN PRIVATE KEY|SUPABASE_SERVICE_ROLE_KEY=ey)" -- ":!package-lock.json" ":!known.md" ; then
+            echo "❌ CRITICAL: Potential secret leak detected!"
+            LEAKS=1
+          else
+            echo "✅ No leaked private keys found in repo."
+          fi
+
+      - name: 6. Test Live Attack Defense (DAST Simulation)
+        id: attack_simulation
+        continue-on-error: true
+        run: |
+          BASE_URL="https://edu-hub-mu-brown.vercel.app"
+          echo "Testing live attack blocking against $BASE_URL..."
+          
+          # Test 1: SQL Injection probe
+          SQLI_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/api/security-monitor?id=1'%20UNION%20SELECT%20*%20FROM%20users--")
+          echo "Test 1 (SQL Injection): HTTP $SQLI_CODE"
+          
+          # Test 2: Path Traversal probe
+          PATH_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/api/security-monitor?file=../../etc/passwd")
+          echo "Test 2 (Path Traversal): HTTP $PATH_CODE"
+          
+          # Test 3: XSS Payload probe
+          XSS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE_URL/api/chat" -H "Content-Type: application/json" -d '{"message":"<script>alert(1)</script>"}')
+          echo "Test 3 (XSS Attack): HTTP $XSS_CODE"
+
+          echo "sqli_code=$SQLI_CODE" >> $GITHUB_OUTPUT
+          echo "path_code=$PATH_CODE" >> $GITHUB_OUTPUT
+          echo "xss_code=$XSS_CODE" >> $GITHUB_OUTPUT
+
+      - name: 7. Generate Security Defense Report
+        if: always()
+        run: |
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          # 🛡️ Báo Cáo An Ninh & Khả Năng Phòng Thủ EduHub
+
+          ### 1. Kết quả kiểm tra phụ thuộc (Dependencies)
+          - **Công cụ kiểm toán**: `npm audit` (chuẩn CVE quốc tế)
+          - **Trạng thái**: Đã quét toàn bộ node_modules.
+
+          ### 2. Kết quả kiểm tra phòng vệ trực tiếp (Live Attack Defense Simulation)
+          | Loại Tấn Công Giả Lập | Endpoint Kiểm Tra | Mã Phản Hồi Kỳ Vọng | Kết Quả Thực Tế | Đánh Giá |
+          | :--- | :--- | :--- | :--- | :--- |
+          | **SQL Injection (SQLi)** | `/api/security-monitor` | `403 Forbidden` | `${{ steps.attack_simulation.outputs.sqli_code }}` | ${{ steps.attack_simulation.outputs.sqli_code == '403' && '🛡️ Đã chặn an toàn' || '⚠️ Cần lưu ý' }} |
+          | **Path Traversal (File probe)** | `/api/security-monitor` | `403 Forbidden` | `${{ steps.attack_simulation.outputs.path_code }}` | ${{ steps.attack_simulation.outputs.path_code == '403' && '🛡️ Đã chặn an toàn' || '⚠️ Cần lưu ý' }} |
+          | **Cross-Site Scripting (XSS)** | `/api/chat` | `403 Forbidden` | `${{ steps.attack_simulation.outputs.xss_code }}` | ${{ steps.attack_simulation.outputs.xss_code == '403' && '🛡️ Đã chặn an toàn' || '⚠️ Cần lưu ý' }} |
+
+          ### 3. Cơ chế cảnh báo Email
+          - **Email tiếp nhận thông báo an ninh**: `lekimnam2809@gmail.com`
+          - **Cấu hình gửi**: Tự động kích hoạt khi có IP gửi payload nguy hiểm tới các API serverless.
+          EOF

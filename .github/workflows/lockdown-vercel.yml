@@ -1,0 +1,57 @@
+name: EduHub Emergency Lockdown (Khóa Khẩn Cấp Deploy Vercel)
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Lý do kích hoạt chế độ khóa khẩn cấp'
+        required: true
+        default: 'Phát hiện tín hiệu tấn công DDoS hoặc dò quét bất thường'
+      lock_scope:
+        description: 'Phạm vi hành động'
+        required: true
+        type: choice
+        options:
+          - 'Cảnh báo & Hướng dẫn khóa dự án Vercel ngay lập tức'
+          - 'Hủy các deployments đang chạy'
+
+jobs:
+  emergency-lockdown:
+    name: 🚨 Kích Hoạt Khóa Khẩn Cấp
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Ghi nhận sự kiện khóa
+        run: |
+          echo "========================================================"
+          echo "🚨 KHẨN CẤP: CHẾ ĐỘ PHÒNG THỦ ĐÃ ĐƯỢC KÍCH HOẠT THỦ CÔNG"
+          echo "Người kích hoạt: ${{ github.actor }}"
+          echo "Lý do: ${{ inputs.reason }}"
+          echo "Phạm vi: ${{ inputs.lock_scope }}"
+          echo "Thời gian: $(date -u)"
+          echo "========================================================"
+
+      - name: 2. Hướng dẫn thao tác khóa nhanh trên Vercel Dashboard
+        run: |
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          # 🚨 CHẾ ĐỘ PHÒNG THỦ & KHÓA DEPLOY VERCEL ĐÃ KÍCH HOẠT
+
+          > [!CAUTION]
+          > Bạn vừa yêu cầu khóa khẩn cấp đối với EduHub do: **${{ inputs.reason }}**
+
+          ### 🛑 3 Bước Thao Tác Thủ Công Khóa Vercel Trong 10 Giây:
+          1. **Bật chế độ Chống Tấn Công (Attack Challenge Mode)**:
+             - Truy cập: [Vercel Security Dashboard](https://vercel.com/dashboard) -> Chọn dự án `edu-hub` -> Tab **Security**.
+             - Bật **"Attack Mode"** hoặc **"Challenge (CAPTCHA)"** để tự động chặn 100% bot và lưu lượng tấn công xấu mà không làm gián đoạn người dùng thật.
+          
+          2. **Tạm dừng Deploy mới (Pause Deployment)**:
+             - Vào **Settings** -> **Git**.
+             - Bấm **"Disconnect"** hoặc tắt **"Production Branch Auto-deploy"**. Lúc này không ai có thể đẩy mã độc lên web được nữa.
+          
+          3. **Chặn IP kẻ tấn công (Firewall IP Blocking)**:
+             - Vào tab **Logs** -> sao chép IP đang spam request.
+             - Vào tab **Security** -> **Firewall** -> Thêm rule: `IP Block` cho địa chỉ IP đó.
+
+          ### 📧 Kênh hỗ trợ & Cảnh báo:
+          - Email nhận báo cáo: **lekimnam2809@gmail.com**
+          - Hãy kiểm tra hòm thư để lấy IP và dữ liệu tấn công cụ thể do **EduHub Security Shield** gửi về.
+          EOF

@@ -2,6 +2,8 @@
 // Endpoint: /api/chat
 // Supports GROQ_API_KEY, OPENROUTER_API_KEY, or GEMINI_API_KEY
 
+import { inspectRequest, sendSecurityAlert } from './security-shield.js';
+
 export default async function handler(req, res) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -15,6 +17,23 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
+  }
+
+  // Security Inspection: Detect SQLi, XSS, Scanners, DDoS Rate Limits
+  const { isMalicious, threatType, payload, clientIp } = inspectRequest(req);
+  if (isMalicious) {
+    await sendSecurityAlert({
+      threatType,
+      clientIp,
+      endpoint: '/api/chat',
+      payload,
+      userAgent: req.headers['user-agent']
+    });
+
+    return res.status(403).json({
+      error: 'Yêu cầu bị chặn bởi EduHub Security Shield.',
+      threat: threatType
+    });
   }
 
   if (req.method !== 'POST') {

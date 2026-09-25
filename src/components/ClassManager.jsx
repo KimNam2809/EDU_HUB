@@ -441,7 +441,7 @@ export default function ClassManager({ classes, setClasses, selectedClassId, set
           </div>
 
           {/* Main Grid: Student List Left, Leaderboard Right */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.3fr) minmax(280px, 0.7fr)', gap: '1.5rem', alignItems: 'start' }}>
+          <div className="class-manager-main-grid">
             {/* Left Column: Student List & Quick Add */}
             <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

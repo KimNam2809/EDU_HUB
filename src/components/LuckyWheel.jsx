@@ -268,7 +268,7 @@ export default function LuckyWheel({ currentClass, onAddStar, questionBank }) {
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.2fr) minmax(280px, 0.8fr)', gap: '1.5rem', alignItems: 'start' }}>
+    <div className="lucky-wheel-grid">
       {/* Left: Canvas Wheel Container */}
       <div className="glass-panel" style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>

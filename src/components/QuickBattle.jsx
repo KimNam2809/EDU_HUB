@@ -135,7 +135,7 @@ export default function QuickBattle({ currentClass, questionBank, onAddStar }) {
       </div>
 
       {/* Duel Arena Header: Player A vs Player B */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '1rem', alignItems: 'center' }}>
+      <div className="quickbattle-teams-grid">
         {/* Player A Card */}
         <div 
           className="glass-card" 
@@ -252,7 +252,7 @@ export default function QuickBattle({ currentClass, questionBank, onAddStar }) {
             {currentQ?.question}
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', marginTop: '1rem' }}>
+          <div className="quickbattle-options-grid">
             {currentQ?.options?.map((opt, idx) => (
               <div
                 key={idx}

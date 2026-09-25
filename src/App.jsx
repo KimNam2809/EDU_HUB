@@ -161,7 +161,7 @@ export default function App() {
       />
 
       {/* Main Content Viewport */}
-      <main style={{ flex: 1, padding: isPresentationMode ? '2rem' : '1.5rem', maxWidth: '1440px', width: '100%', margin: '0 auto' }}>
+      <main className={`main-app-container ${isPresentationMode ? 'presentation-active' : ''}`}>
         
         {/* =========================================================
             TAB 1: KHỞI ĐỘNG & TRÒ CHƠI KIỂM TRA BÀI CŨ (GAMIFICATION)
@@ -169,7 +169,7 @@ export default function App() {
         {activeTab === 'games' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {/* Sub-tab Pills */}
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div className="subtab-pills-bar">
               <button
                 className={`btn btn-sm ${activeGameSubTab === 'wheel' ? 'btn-primary' : 'btn-secondary'}`}
                 onClick={() => { setActiveGameSubTab('wheel'); playPop(); }}
@@ -232,7 +232,7 @@ export default function App() {
         {activeTab === 'lab' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {/* Sub-tab Pills */}
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div className="subtab-pills-bar">
               <button
                 className={`btn btn-sm ${activeLabSubTab === 'periodic' ? 'btn-primary' : 'btn-secondary'}`}
                 onClick={() => { setActiveLabSubTab('periodic'); playPop(); }}
@@ -272,7 +272,7 @@ export default function App() {
         {activeTab === 'qa' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {/* Sub-tab Pills */}
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div className="subtab-pills-bar">
               <button
                 className={`btn btn-sm ${activeQASubTab === 'board' ? 'btn-primary' : 'btn-secondary'}`}
                 onClick={() => { setActiveQASubTab('board'); playPop(); }}

@@ -1192,15 +1192,12 @@ export default function TeacherToolkit() {
           {/* Result & Phenomenon Card */}
           {balancedResult && (
             <div 
-              className="glass-card"
+              className="glass-card reaction-detail-grid"
               style={{ 
                 background: 'var(--bg-surface)', 
                 border: '2px solid #f59e0b', 
                 padding: '1.5rem',
                 borderLeft: '6px solid #f59e0b',
-                display: 'grid',
-                gridTemplateColumns: 'minmax(300px, 1.2fr) minmax(280px, 0.8fr)',
-                gap: '1.5rem',
                 alignItems: 'center'
               }}
             >
